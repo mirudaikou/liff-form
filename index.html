@@ -2,40 +2,65 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>X投稿フォーム</title>
+  <title>LIFF フォーム</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h2>X投稿フォーム</h2>
+  <h2>フォーム</h2>
 
-  <label>案件名: <input type="text" id="projectName"></label><br><br>
-  <label>担当者: <input type="text" id="member"></label><br><br>
-  <label>業務名: <input type="text" id="taskName" value="X投稿" readonly></label><br><br>
+  <div id="profile"></div>
+
+  <label>案件名: <input type="text" id="project"></label><br><br>
+  <label>担当者: <input type="text" id="person"></label><br><br>
+  <label>業務名: <input type="text" id="task"></label><br><br>
   <label>ステップ: <input type="text" id="step"></label><br><br>
-  <label>コメント／メモ: <input type="text" id="note"></label><br><br>
+  <label>コメント: <input type="text" id="comment"></label><br><br>
 
   <button onclick="sendData()">送信</button>
 
+  <p id="result"></p>
+
   <script>
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec";
+
+    window.onload = function () {
+      liff.init({ liffId: "2007865517-N5Ox6P07" })
+        .then(() => {
+          if (!liff.isLoggedIn()) {
+            liff.login();
+          } else {
+            liff.getProfile().then(profile => {
+              document.getElementById("profile").innerHTML = `
+                <p>こんにちは、${profile.displayName}さん</p>
+              `;
+            });
+          }
+        })
+        .catch(err => {
+          document.getElementById("result").innerText = "LIFF初期化エラー: " + err;
+        });
+    };
+
     function sendData() {
       const data = {
-        projectName: document.getElementById("projectName").value,
-        member: document.getElementById("member").value,
-        taskName: document.getElementById("taskName").value,
+        project: document.getElementById("project").value,
+        person: document.getElementById("person").value,
+        task: document.getElementById("task").value,
         step: document.getElementById("step").value,
-        note: document.getElementById("note").value
+        message: document.getElementById("comment").value,
       };
 
-      fetch("https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec", {
+      fetch(GAS_URL, {
         method: "POST",
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
       })
-      .then(res => res.text())
-      .then(txt => {
-        alert("送信結果: " + txt);
-      })
-      .catch(err => {
-        alert("エラー: " + err);
-      });
+        .then(res => res.text())
+        .then(txt => {
+          document.getElementById("result").innerText = txt;
+        })
+        .catch(err => {
+          document.getElementById("result").innerText = "送信エラー: " + err;
+        });
     }
   </script>
 </body>

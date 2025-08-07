@@ -1,20 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>業務記録フォーム</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <script src="main.js" defer></script>
-</head>
-<body>
-  <h2>業務記録フォーム</h2>
+<h2>X投稿 フォーム</h2>
+<label>案件名: <input type="text" id="projectName"></label><br><br>
+<label>担当者: <input type="text" id="member"></label><br><br>
+<label>ステップ: <input type="text" id="step"></label><br><br>
+<label>コメント／メモ: <input type="text" id="memo"></label><br><br>
+<button onclick="sendData()">送信</button>
 
-  <label>業務名: <input type="text" id="taskName"></label><br><br>
-  <label>メンバー: <input type="text" id="member"></label><br><br>
-  <label>ステップ: <input type="text" id="step"></label><br><br>
-  <label>ポイント: <input type="number" id="point"></label><br><br>
-  <label>メモ: <input type="text" id="note"></label><br><br>
-  
-  <button onclick="submitForm()">送信</button>
+<script>
+function sendData() {
+  const data = {
+    taskName: "X投稿",
+    projectName: document.getElementById("projectName").value,
+    member: document.getElementById("member").value,
+    step: document.getElementById("step").value,
+    memo: document.getElementById("memo").value
+  };
 
-</body>
-</html>
+  fetch("https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec", {
+    method: "POST",
+    body: JSON.stringify(data),
+  })
+  .then(response => response.text())
+  .then(result => alert("送信結果: " + result))
+  .catch(error => alert("エラー: " + error));
+}
+</script>

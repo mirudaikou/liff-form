@@ -1,26 +1,42 @@
-<h2>X投稿 フォーム</h2>
-<label>案件名: <input type="text" id="projectName"></label><br><br>
-<label>担当者: <input type="text" id="member"></label><br><br>
-<label>ステップ: <input type="text" id="step"></label><br><br>
-<label>コメント／メモ: <input type="text" id="memo"></label><br><br>
-<button onclick="sendData()">送信</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>X投稿フォーム</title>
+</head>
+<body>
+  <h2>X投稿フォーム</h2>
 
-<script>
-function sendData() {
-  const data = {
-    taskName: "X投稿",
-    projectName: document.getElementById("projectName").value,
-    member: document.getElementById("member").value,
-    step: document.getElementById("step").value,
-    memo: document.getElementById("memo").value
-  };
+  <label>案件名: <input type="text" id="projectName"></label><br><br>
+  <label>担当者: <input type="text" id="member"></label><br><br>
+  <label>業務名: <input type="text" id="taskName" value="X投稿" readonly></label><br><br>
+  <label>ステップ: <input type="text" id="step"></label><br><br>
+  <label>コメント／メモ: <input type="text" id="note"></label><br><br>
 
-  fetch("https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec", {
-    method: "POST",
-    body: JSON.stringify(data),
-  })
-  .then(response => response.text())
-  .then(result => alert("送信結果: " + result))
-  .catch(error => alert("エラー: " + error));
-}
-</script>
+  <button onclick="sendData()">送信</button>
+
+  <script>
+    function sendData() {
+      const data = {
+        projectName: document.getElementById("projectName").value,
+        member: document.getElementById("member").value,
+        taskName: document.getElementById("taskName").value,
+        step: document.getElementById("step").value,
+        note: document.getElementById("note").value
+      };
+
+      fetch("https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec", {
+        method: "POST",
+        body: JSON.stringify(data)
+      })
+      .then(res => res.text())
+      .then(txt => {
+        alert("送信結果: " + txt);
+      })
+      .catch(err => {
+        alert("エラー: " + err);
+      });
+    }
+  </script>
+</body>
+</html>

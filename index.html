@@ -2,65 +2,125 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>LIFF フォーム</title>
+  <title>業務記録フォーム</title>
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body>
-  <h2>フォーム</h2>
+  <h2>業務記録フォーム</h2>
 
-  <div id="profile"></div>
+  <label>担当者（LINE表示名）:<br>
+    <input type="text" id="member" readonly>
+  </label><br><br>
 
-  <label>案件名: <input type="text" id="project"></label><br><br>
-  <label>担当者: <input type="text" id="person"></label><br><br>
-  <label>業務名: <input type="text" id="task"></label><br><br>
-  <label>ステップ: <input type="text" id="step"></label><br><br>
-  <label>コメント: <input type="text" id="comment"></label><br><br>
+  <label>案件名:<br>
+    <input type="text" id="projectName">
+  </label><br><br>
 
-  <button onclick="sendData()">送信</button>
+  <label>業務名:<br>
+    <select id="taskName" onchange="toggleFields()">
+      <option value="">選択してください</option>
+      <option value="X投稿">X投稿</option>
+      <option value="イベントの情報収集">イベントの情報収集</option>
+      <option value="入出金">入出金</option>
+    </select>
+  </label><br><br>
 
-  <p id="result"></p>
+  <!-- 共通 -->
+  <div id="commonFields">
+    <label>ステップ:<br>
+      <input type="text" id="step">
+    </label><br><br>
+
+    <label>コメント／メモ:<br>
+      <input type="text" id="memo">
+    </label><br><br>
+  </div>
+
+  <!-- イベントの情報収集用 -->
+  <div id="eventFields" style="display:none;">
+    <label>公演名:<br><input type="text" id="eventName"></label><br><br>
+    <label>日時:<br><input type="text" id="eventDate"></label><br><br>
+    <label>開催国:<br><input type="text" id="country"></label><br><br>
+    <label>公演会場:<br><input type="text" id="venue"></label><br><br>
+    <label>チケッティング日（FC）:<br><input type="text" id="ticketFcDate"></label><br><br>
+    <label>チケッティング日（一般）:<br><input type="text" id="ticketGeneralDate"></label><br><br>
+    <label>チケッティング日（その他）:<br><input type="text" id="ticketOtherDate"></label><br><br>
+    <label>FC申請期限日:<br><input type="text" id="fcDeadline"></label><br><br>
+    <label>チケット販売サイト:<br><input type="text" id="ticketSite"></label><br><br>
+  </div>
+
+  <!-- 入出金用 -->
+  <div id="paymentFields" style="display:none;">
+    <label>入出金種別:<br>
+      <select id="paymentType">
+        <option value="">選択してください</option>
+        <option value="入金">入金</option>
+        <option value="立替">立替</option>
+        <option value="返金">返金</option>
+        <option value="仮精算出金">仮精算出金</option>
+        <option value="仮精算入金">仮精算入金</option>
+      </select>
+    </label><br><br>
+
+    <label>金額:<br>
+      <input type="number" id="amount">
+    </label><br><br>
+  </div>
+
+  <button onclick="submitForm()">送信</button>
 
   <script>
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzFXIrHKlUYmEKQ6oXyQK0pEnBhfQ0Xmhs0epYZIKemSesTpguioScldGKaEFCflLLefg/exec";
+    const LIFF_ID = "2007865517-N5Ox6P07"; // ★差し替え
 
-    window.onload = function () {
-      liff.init({ liffId: "2007865517-N5Ox6P07" })
+    window.onload = () => {
+      liff.init({ liffId: LIFF_ID })
         .then(() => {
           if (!liff.isLoggedIn()) {
             liff.login();
           } else {
             liff.getProfile().then(profile => {
-              document.getElementById("profile").innerHTML = `
-                <p>こんにちは、${profile.displayName}さん</p>
-              `;
+              document.getElementById("member").value = profile.displayName;
             });
           }
         })
-        .catch(err => {
-          document.getElementById("result").innerText = "LIFF初期化エラー: " + err;
-        });
+        .catch(console.error);
     };
 
-    function sendData() {
+    function toggleFields() {
+      const task = document.getElementById("taskName").value;
+      document.getElementById("eventFields").style.display = (task === "イベントの情報収集") ? "block" : "none";
+      document.getElementById("paymentFields").style.display = (task === "入出金") ? "block" : "none";
+    }
+
+    function submitForm() {
       const data = {
-        project: document.getElementById("project").value,
-        person: document.getElementById("person").value,
-        task: document.getElementById("task").value,
+        taskName: document.getElementById("taskName").value,
+        projectName: document.getElementById("projectName").value,
+        member: document.getElementById("member").value,
         step: document.getElementById("step").value,
-        message: document.getElementById("comment").value,
+        memo: document.getElementById("memo").value,
+        // イベント系
+        eventName: document.getElementById("eventName")?.value,
+        eventDate: document.getElementById("eventDate")?.value,
+        country: document.getElementById("country")?.value,
+        venue: document.getElementById("venue")?.value,
+        ticketFcDate: document.getElementById("ticketFcDate")?.value,
+        ticketGeneralDate: document.getElementById("ticketGeneralDate")?.value,
+        ticketOtherDate: document.getElementById("ticketOtherDate")?.value,
+        fcDeadline: document.getElementById("fcDeadline")?.value,
+        ticketSite: document.getElementById("ticketSite")?.value,
+        // 入出金
+        paymentType: document.getElementById("paymentType")?.value,
+        amount: document.getElementById("amount")?.value
       };
 
-      fetch(GAS_URL, {
+      fetch("https://script.google.com/macros/s/AKfycbweqfccsUaz8obS-H2blCl0kfVdSUZWXll9fCBucyqVB4yHu1Z87Ph_juIkaQjZhLUdGA/exec", {
         method: "POST",
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       })
-        .then(res => res.text())
-        .then(txt => {
-          document.getElementById("result").innerText = txt;
-        })
-        .catch(err => {
-          document.getElementById("result").innerText = "送信エラー: " + err;
-        });
+      .then(response => response.text())
+      .then(text => alert("送信結果: " + text))
+      .catch(error => alert("エラー: " + error));
     }
   </script>
 </body>
